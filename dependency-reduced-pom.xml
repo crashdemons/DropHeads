@@ -68,6 +68,7 @@
               <artifactSet>
                 <includes>
                   <include>net.evmodder:EvLib:jar:</include>
+                  <include>org.shininet.bukkit:PlayerHeads-compatibility-lib:jar:</include>
                 </includes>
               </artifactSet>
             </configuration>
@@ -80,6 +81,10 @@
     <repository>
       <id>spigot-repo</id>
       <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
+      <id>crashdemons-repo</id>
+      <url>https://meme.tips/java-repos/</url>
     </repository>
     <repository>
       <id>headdatabase-api</id>

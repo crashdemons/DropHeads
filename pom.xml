@@ -17,6 +17,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        <repository>
+            <id>crashdemons-repo</id>
+            <url>https://meme.tips/java-repos/</url>
+        </repository>
         <!--
         <repository>
             <id>ess-repo</id>
@@ -83,6 +87,23 @@
             <artifactId>spigot-api</artifactId>
             <version>[1.15.2-R0.1-SNAPSHOT]</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <!-- This shouldn't be a dep which is packaging: pom -->
+            <groupId>org.shininet.bukkit</groupId>
+            <artifactId>PlayerHeads-compatibility-lib</artifactId>
+            <version>5.2.12-SNAPSHOT</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bukkit</groupId>
+                    <artifactId>bukkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>fr.neatmonster</groupId>
+                    <artifactId>ncpplugin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -233,6 +254,7 @@
                                 <includes>
                                     
                                     <include>net.evmodder:EvLib:jar:</include>
+                                    <include>org.shininet.bukkit:PlayerHeads-compatibility-lib:jar:</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
