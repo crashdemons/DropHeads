@@ -18,6 +18,12 @@
  */
 package net.evmodder.DropHeads;
 
+import com.github.crashdemons.playerheads.compatibility.Compatibility;
+import com.github.crashdemons.playerheads.compatibility.exceptions.CompatibilityUnavailableException;
+import com.github.crashdemons.playerheads.compatibility.exceptions.CompatibilityUnsupportedException;
+import com.github.crashdemons.playerheads.compatibility.exceptions.UnknownVersionException;
+
+
 import net.evmodder.DropHeads.commands.*;
 import net.evmodder.DropHeads.listeners.*;
 import net.evmodder.EvLib.EvPlugin;
@@ -63,7 +69,28 @@ public final class DropHeads extends EvPlugin{
 	private boolean LOGFILE_ENABLED;
 	private String LOGFILE_NAME;
 
+        
+        
+        
+        
+
+    private void initializePHCompatibility(){
+        boolean isUsingRecommendedVersion=true;
+        try{
+            isUsingRecommendedVersion = Compatibility.init();
+        }catch(UnknownVersionException e){
+            getLogger().warning("[PH-Compat-Lib] error initialzing.");
+            throw e;
+        }
+        
+        if(!isUsingRecommendedVersion){ 
+            getLogger().warning("[PH-Compat-Lib] using fallback server support - problems may occur.");
+        }
+    }
+        
+        
 	@Override public void onEvEnable(){
+                initializePHCompatibility();
 		if(config.getBoolean("update-plugin", false)){
 			new Updater(/*plugin=*/this, /*id=*/274151, getFile(), Updater.UpdateType.DEFAULT, /*announce=*/true);
 			//todo: if 'update-textures', trigger overwrite in HeadAPI
