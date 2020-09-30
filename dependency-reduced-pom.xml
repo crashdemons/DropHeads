@@ -11,6 +11,16 @@
         <directory>${basedir}/src/main/resources</directory>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <filtering>true</filtering>
+        <directory>${basedir}/src/main/resources</directory>
+      </testResource>
+      <testResource>
+        <filtering>true</filtering>
+        <directory>${basedir}/src/test/resources</directory>
+      </testResource>
+    </testResources>
     <finalName>${project.name}-${project.version}</finalName>
     <pluginManagement>
       <plugins>
