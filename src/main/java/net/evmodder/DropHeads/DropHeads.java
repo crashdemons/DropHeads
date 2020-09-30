@@ -19,9 +19,7 @@
 package net.evmodder.DropHeads;
 
 import com.github.crashdemons.playerheads.compatibility.Compatibility;
-import com.github.crashdemons.playerheads.compatibility.exceptions.CompatibilityUnavailableException;
-import com.github.crashdemons.playerheads.compatibility.exceptions.CompatibilityUnsupportedException;
-import com.github.crashdemons.playerheads.compatibility.exceptions.UnknownVersionException;
+import com.github.crashdemons.playerheads.compatibility.exceptions.*;
 
 
 import net.evmodder.DropHeads.commands.*;
@@ -78,9 +76,9 @@ public final class DropHeads extends EvPlugin{
         boolean isUsingRecommendedVersion=true;
         try{
             isUsingRecommendedVersion = Compatibility.init();
-        }catch(UnknownVersionException e){
+        }catch(CompatibilityConflictException | CompatibilityUnavailableException | CompatibilityUnsupportedException | UnknownVersionException e){
             getLogger().warning("[PH-Compat-Lib] error initialzing.");
-            throw e;
+            throw e;//fatal
         }
         
         if(!isUsingRecommendedVersion){ 
