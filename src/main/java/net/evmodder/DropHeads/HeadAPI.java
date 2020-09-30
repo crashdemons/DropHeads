@@ -25,13 +25,13 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.arcaniax.hdb.api.DatabaseLoadEvent;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
+import net.evmodder.DropHeads.integration.HeadDBSupport;
 import net.evmodder.EvLib.FileIO;
 import net.evmodder.EvLib.extras.HeadUtils;
 
 public class HeadAPI {
 	final private DropHeads pl;
-	private HeadDatabaseAPI hdbAPI = null;
-//	private int MAX_HDB_ID = -1;
+        final private HeadDBSupport hdb;
 	final boolean GRUM_ENABLED, SADDLES_ENABLED;
 	final boolean UPDATE_PLAYER_HEADS, UPDATE_ZOMBIE_PIGMEN_HEADS/*, SAVE_CUSTOM_LORE*/, SAVE_TYPE_IN_LORE, MAKE_UNSTACKABLE;
 	final TreeMap<String, String> textures; // Key="ENTITY_NAME|DATA", Value="eyJ0ZXh0dXJl..."
@@ -39,6 +39,8 @@ public class HeadAPI {
 	HeadAPI(){
 		textures = new TreeMap<String, String>();
 		pl = DropHeads.getPlugin();
+                hdb = new HeadDBSupport(pl);
+                
 		GRUM_ENABLED = pl.getConfig().getBoolean("drop-grumm-heads", true);
 		SADDLES_ENABLED = pl.getConfig().getBoolean("drop-saddled-heads", true);
 		UPDATE_PLAYER_HEADS = pl.getConfig().getBoolean("update-on-skin-change", true);
@@ -76,23 +78,7 @@ public class HeadAPI {
 			for(String key : allKeys) if(key.indexOf('|') != -1) textures.remove(key);
 		}
 
-		boolean hdbInstalled = true;
-		try{Class.forName("me.arcaniax.hdb.api.DatabaseLoadEvent");}
-		catch(ClassNotFoundException ex){hdbInstalled = false;}
-
-		if(hdbInstalled) pl.getServer().getPluginManager().registerEvents(new Listener(){
-			@EventHandler public void onDatabaseLoad(DatabaseLoadEvent e){
-				HandlerList.unregisterAll(this);
-				hdbAPI = new HeadDatabaseAPI();
-				/*MAX_HDB_ID = JunkUtils.binarySearch(
-					id -> {
-						try{return api.isHead(""+id);}
-						catch(NullPointerException nullpointer){return false;}
-					},
-					0, Integer.MAX_VALUE
-				);*/
-			}
-		}, pl);
+                if(hdb.isInstalled()) hdb.registerAPI();
 	}
 
 	void loadTextures(String headsList, boolean logMissingEntities, boolean logUnknownEntities){
@@ -144,7 +130,7 @@ public class HeadAPI {
 
 	public boolean textureExists(String textureKey){return textures.containsKey(textureKey);}
 	public TreeMap<String, String> getTextures(){return textures;}//TODO: remove public (add CommandSpawnHead as friend?)
-	public HeadDatabaseAPI getHeadDatabaseAPI(){return hdbAPI;}//TODO: prefer this not by public
+	public HeadDatabaseAPI getHeadDatabaseAPI(){return hdb.getAPI();}//TODO: prefer this not by public
 
 	public String getHeadNameFromKey(String textureKey){
 		// Attempt to parse out an EntityType
@@ -167,9 +153,9 @@ public class HeadAPI {
 
 	public String getHeadName(GameProfile profile){
 		if(profile == null) return getHeadNameFromKey(EntityType.PLAYER.name());;
-		if(hdbAPI != null){
-			String id = hdbAPI.getItemID(HeadUtils.getPlayerHead(profile));
-			if(id != null && hdbAPI.isHead(id)) return hdbAPI.getItemHead(id).getItemMeta().getDisplayName();
+		if(hdb.isReady()){
+			String id = hdb.getAPI().getItemID(HeadUtils.getPlayerHead(profile));
+			if(id != null && hdb.getAPI().isHead(id)) return hdb.getAPI().getItemHead(id).getItemMeta().getDisplayName();
 		}
 		String profileName = profile.getName();
 		if(profileName == null) return getHeadNameFromKey(EntityType.PLAYER.name());;
@@ -270,7 +256,9 @@ public class HeadAPI {
 		return head;
 	}
 	public ItemStack getItemHead_wrapper(String id){
-		ItemStack hdbHead = hdbAPI.getItemHead(id);
+                if(!hdb.isReady()) throw new IllegalStateException("HeadDB is not available for getItemHead_wrapper");
+            
+		ItemStack hdbHead = hdb.getAPI().getItemHead(id);
 		GameProfile profile = HeadUtils.getGameProfile((SkullMeta)hdbHead.getItemMeta());
 		ItemStack head = HeadUtils.getPlayerHead(profile);
 		SkullMeta meta = (SkullMeta)head.getItemMeta();
@@ -349,9 +337,9 @@ public class HeadAPI {
 			OfflinePlayer p = pl.getServer().getOfflinePlayer(profile.getId());
 			if(p != null && p.getName() != null) return getPlayerHead_wrapper(p);
 		}
-		if(hdbAPI != null){
-			String id = hdbAPI.getItemID(HeadUtils.getPlayerHead(profile));
-			if(id != null && hdbAPI.isHead(id)) return getItemHead_wrapper(id);
+		if(hdb.isReady()){
+			String id = hdb.getAPI().getItemID(HeadUtils.getPlayerHead(profile));
+			if(id != null && hdb.getAPI().isHead(id)) return getItemHead_wrapper(id);
 		}
 		return getPlayerHead_wrapper(profile);
 	}
