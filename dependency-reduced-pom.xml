@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.evmodder</groupId>
   <artifactId>DropHeads</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>3.4.4-SNAPSHOT</version>
   <build>
     <resources>
       <resource>
